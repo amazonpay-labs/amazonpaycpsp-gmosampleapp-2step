@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" class="gr__s3-ap-northeast-1_amazonaws_com">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0">
+    <meta name="google" content="notranslate" />
+    <title>Amazon Pay Sample</title>
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/static/css/shop-confirmation.css" rel="stylesheet">
+</head>
+
+<body data-gr-c-s-loaded="true">
+    <form id="AmazonpayRedirectCall" method="POST">
+        <input type="hidden" id="AccessID" name="AccessID">
+        <input type="hidden" id="Token" name="Token">
+    </form>
+    
+    <script>
+        function getURLParameter(name, source) {
+            return decodeURIComponent((new RegExp('[?|&amp;|#]' + name + '=' +
+                            '([^&;]+?)(&|#|;|$)').exec(source) || [, ""])[1].replace(/\+/g, '%20')) || null;
+        }
+
+        const tokenKv = document.cookie.split('; ').find(function(kv) {return kv.startsWith('token=')});
+        const tokenFromCookie = tokenKv ? tokenKv.split('=')[1] : null;
+        const tokenFromParam = getURLParameter("token4app", location.search);
+
+        if(tokenFromCookie === tokenFromParam) {
+            const arc = document.getElementById('AmazonpayRedirectCall');
+            arc.action = getURLParameter("StartURL", location.search);
+            document.getElementById('AccessID').value = getURLParameter("AccessID", location.search)
+            document.getElementById('Token').value = getURLParameter("Token", location.search);
+            arc.submit();
+        }
+    </script>
+</body>
+
+</html>

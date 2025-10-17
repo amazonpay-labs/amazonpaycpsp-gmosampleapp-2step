@@ -28,21 +28,10 @@ public class AmazonPayActivity extends AppCompatActivity {
         this.isKicked = true;
 
         Intent intent = getIntent();
-        Log.d("[Intent]", "intent received!");
-
-        Map<String, String> params = new HashMap<>();
-        for (String key:intent.getExtras().keySet()) {
-            params.put(key, intent.getStringExtra(key));
-        }
-        String url = params.remove("url");
+        Log.d("[Intent]", "Explicit intent received!");
+        String url = intent.getStringExtra("url");
         Log.d("[Intent - url]", url);
-        Optional<String> oQuery = params.entrySet().stream()
-                .map(e -> e.getKey() + "=" + e.getValue() )
-                .reduce((a, b) -> a + "&" + b);
-        String urlParams = oQuery.map(s -> "?" + s).orElse("");
-        Log.d("[Intent - URL params]", urlParams);
-
-        invokeSecureWebview(this, url + urlParams);
+        invokeSecureWebview(this, url);
     }
 
     @Override
@@ -72,7 +61,7 @@ public class AmazonPayActivity extends AppCompatActivity {
             }
 
         } else {
-            Log.d("[Intent]", "intent received!");
+            Log.d("[Intent]", "Implicit intent received!");
             Log.d("[Intent]", intent.getStringExtra("mode"));
             if(intent.getStringExtra("mode").equals("thanks")) {
                 String params = intent.getStringExtra("params");

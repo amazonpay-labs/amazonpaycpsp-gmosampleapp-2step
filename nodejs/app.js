@@ -114,10 +114,12 @@ app.post('/sample/checkoutSession', async (req, res) => {
     // Note: 一般的には受注情報はSessionやDBなどを使ってServer側に保持しますが、本サンプルではシンプルにするためにCookieを使用しています
     res.cookie('session', JSON.stringify(order), {secure: false});
 
-    const resBody = Object.keys(order.start).reduce((o, k) => {o[k] = encodeURIComponent(order.start[k]); return o}, {});
+    const params = Object.keys(order.start).map(k => `${k}=${encodeURIComponent(order.start[k])}`).join('&');
+    // const params = encodeURIComponent(plainParams);
+    // const resBody = Object.keys(order.start).reduce((o, k) => {o[k] = encodeURIComponent(order.start[k]); return o}, {});
 
     res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8'});
-    res.write(JSON.stringify(resBody));
+    res.write(JSON.stringify({params}));
     res.end()
 });
 

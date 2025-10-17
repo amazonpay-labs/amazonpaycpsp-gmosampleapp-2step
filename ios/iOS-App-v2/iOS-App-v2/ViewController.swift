@@ -80,9 +80,9 @@ class ViewController: UIViewController {
         present(safariView, animated: true, completion: nil)
     }
     
-    func invokeAuthorizePage(_ url: String, _ accessId: String, _ gmoToken: String) {
+    func invokeAuthorizePage(_ params: String) {
         print("ViewController#invokeAuthorizePage")
-        let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/static/post.html?StartURL=\(url)&AccessID=\(accessId)&Token=\(gmoToken)&token4app=\(token!)")! as URL)
+        let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/static/post.html?\(params)&token4app=\(token!)")! as URL)
         present(safariView, animated: true, completion: nil)
     }
 }
@@ -102,7 +102,7 @@ extension ViewController: WKScriptMessageHandler {
                 case "login":
                     invokeAppLoginPage()
                 case "auth":
-                    invokeAuthorizePage(data["StartURL"] as! String, data["AccessID"] as! String, data["Token"] as! String)
+                    invokeAuthorizePage(data["params"] as! String)
                 default:
                     return
                 }

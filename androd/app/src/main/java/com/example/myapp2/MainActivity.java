@@ -68,40 +68,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void invokeAppLoginPage(Context context) {
+    @JavascriptInterface
+    public void login() {
         token = UUID.randomUUID().toString();
-        invokeSecureWebview(context, "https://10.0.2.2:3443/appLogin?client=androidApp&token=" + token);
+        Log.d("[JsCallback - login]", "token=" + token);
+        invokeSecureWebview(this, "https://10.0.2.2:3443/appLogin?client=androidApp&token=" + token);
     }
 
-    void invokeAuthorizePage(Context context, String url, Map<String, String> params) {
-        invokeSecureWebview(context, url, params);
+    @JavascriptInterface
+    public void auth(String params) {
+        Log.d("[JsCallback - auth]", "params: " + params + ", token: " + token);
+        invokeSecureWebview(this, "https://10.0.2.2:3443/static/post.html?" + params + "&token4app=" + token);
     }
 
     private void invokeSecureWebview(Context context, String url) {
-        invokeSecureWebview(context, url, new HashMap<>());
-    }
-
-    private void invokeSecureWebview(Context context, String url, Map<String, String> params) {
         Intent intent = new Intent(context, AmazonPayActivity.class);
         intent.putExtra("url", url);
-        params.forEach(intent::putExtra);
         context.startActivity(intent);
-    }
-
-    @JavascriptInterface
-    public void login() {
-        Log.d("[JsCallback - login]", "");
-        invokeAppLoginPage(this);
-    }
-
-    @JavascriptInterface
-    public void auth(String url, String accessId, String token) {
-        Log.d("[JsCallback - auth]", "url: " + url + ", accessId: " + accessId + ", token: " + token);
-        Map<String, String> params = new HashMap<>();
-        params.put("StartURL", url);
-        params.put("AccessID", accessId);
-        params.put("Token", token);
-        params.put("token4app", MainActivity.token);
-        invokeAuthorizePage(this, "https://10.0.2.2:3443/static/post.html", params);
     }
 }

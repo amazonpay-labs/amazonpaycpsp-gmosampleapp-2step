@@ -199,18 +199,18 @@
         .then(
             function(json) { //success
                 console.log(json);
-                if(json.StartURL) {
+                if(json.params) {
                     if(window.androidApp) {
                         coverScreen();
-                        androidApp.auth(json.StartURL, json.AccessID, json.Token);
+                        androidApp.auth(json.params);
                     } else if(window.webkit && webkit.messageHandlers && webkit.messageHandlers.iosApp) {
                         coverScreen();
                         webkit.messageHandlers.iosApp.postMessage({op: 'auth', ...json});            
                     } else {
                         const arc = document.getElementById('AmazonpayRedirectCall');
-                        arc.action = decodeURIComponent(json.StartURL);
-                        document.getElementById('AccessID').value = decodeURIComponent(json.AccessID);
-                        document.getElementById('Token').value = decodeURIComponent(json.Token);
+                        arc.action = getParameter("StartURL", json.params);
+                        document.getElementById('AccessID').value = getParameter("AccessID", json.params);
+                        document.getElementById('Token').value = getParameter("Token", json.params);
                         arc.submit();
                     }
                 } else {

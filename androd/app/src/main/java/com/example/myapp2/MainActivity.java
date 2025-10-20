@@ -71,14 +71,20 @@ public class MainActivity extends AppCompatActivity {
     @JavascriptInterface
     public void startSecureWebview() {
         secureToken = UUID.randomUUID().toString();
-        Log.d("[JsCallback - login]", "secureToken=" + secureToken);
+        Log.d("[JsCallback - start]", "secureToken=" + secureToken);
         invokeSecureWebview(this, "https://10.0.2.2:3443/startSecureWebview?client=androidApp&secureToken=" + secureToken);
     }
 
     @JavascriptInterface
     public void resumeSecureWebview(String params) {
-        Log.d("[JsCallback - auth]", "params: " + params + ", secureToken: " + secureToken);
+        Log.d("[JsCallback - resume]", "params: " + params + ", secureToken: " + secureToken);
         invokeSecureWebview(this, "https://10.0.2.2:3443/static/resumeSecureWebview.html?" + params + "&secureToken=" + secureToken);
+    }
+
+    @JavascriptInterface
+    public void changeSecureWebview(String params) {
+        Log.d("[JsCallback - change]", "params: " + params + ", secureToken: " + secureToken);
+        invokeSecureWebview(this, "https://10.0.2.2:3443/static/changeSecureWebview.html?" + params + "&secureToken=" + secureToken);
     }
 
     private void invokeSecureWebview(Context context, String url) {

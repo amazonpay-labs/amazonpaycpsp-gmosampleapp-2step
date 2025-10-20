@@ -259,21 +259,21 @@
         // Android App
         document.getElementById("changeButton1").addEventListener('click', (e) => {
             coverScreen();
-            androidApp.startSecureWebview();
+            androidApp.changeSecureWebview('changeAction=changeAddress&amazonCheckoutSessionId=<%= amazonCheckoutSessionId %>');
         });
         document.getElementById("changeButton2").addEventListener('click', (e) => {
             coverScreen();
-            androidApp.startSecureWebview();
+            androidApp.changeSecureWebview('changeAction=changePayment&amazonCheckoutSessionId=<%= amazonCheckoutSessionId %>');
         });
     } else if (window.webkit && webkit.messageHandlers && webkit.messageHandlers.iosApp) {
         // iOS App
         document.getElementById("changeButton1").addEventListener('click', (e) => {
             coverScreen();
-            webkit.messageHandlers.iosApp.postMessage({op: 'startSecureWebview'});            
+            webkit.messageHandlers.iosApp.postMessage({op: 'changeSecureWebview', params: 'changeAction=changeAddress&amazonCheckoutSessionId=<%= amazonCheckoutSessionId %>'});
         });
         document.getElementById("changeButton2").addEventListener('click', (e) => {
             coverScreen();
-            webkit.messageHandlers.iosApp.postMessage({op: 'startSecureWebview'});            
+            webkit.messageHandlers.iosApp.postMessage({op: 'changeSecureWebview', params: 'changeAction=changePayment&amazonCheckoutSessionId=<%= amazonCheckoutSessionId %>'});
         });
     } else {
         // Browser

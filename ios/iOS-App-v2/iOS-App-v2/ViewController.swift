@@ -85,6 +85,12 @@ class ViewController: UIViewController {
         let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/static/resumeSecureWebview.html?\(params)&secureToken=\(secureToken!)")! as URL)
         present(safariView, animated: true, completion: nil)
     }
+    
+    func changeSecureWebview(_ params: String) {
+        print("ViewController#changeSecureWebview")
+        let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/static/changeSecureWebview.html?\(params)&secureToken=\(secureToken!)")! as URL)
+        present(safariView, animated: true, completion: nil)
+    }
 }
 
 extension ViewController: WKScriptMessageHandler {
@@ -103,6 +109,8 @@ extension ViewController: WKScriptMessageHandler {
                     startSecureWebview()
                 case "resumeSecureWebview":
                     resumeSecureWebview(data["params"] as! String)
+                case "changeSecureWebview":
+                    changeSecureWebview(data["params"] as! String)
                 default:
                     return
                 }

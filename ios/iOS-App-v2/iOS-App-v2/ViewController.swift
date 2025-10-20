@@ -49,7 +49,7 @@ class ViewController: UIViewController {
             
             // WebViewの生成、orderページの読み込み
             webView = WKWebView(frame: rect, configuration: webConfig)
-            let webUrl = URL(string: "http://localhost:3080/sample/cart")!
+            let webUrl = URL(string: "http://localhost:3080/cart")!
             let myRequest = URLRequest(url: webUrl)
             webView.load(myRequest)
             
@@ -72,17 +72,17 @@ class ViewController: UIViewController {
         }
     }
     
-    func invokeAppLoginPage() {
-        print("ViewController#invokeButtonPage")
+    func startSecureWebview() {
+        print("ViewController#startSecureWebview")
         
         token = UUID().uuidString.lowercased()
-        let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/appLogin?client=iosApp&token=\(token!)")! as URL)
+        let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/startSecureWebview?client=iosApp&token=\(token!)")! as URL)
         present(safariView, animated: true, completion: nil)
     }
     
-    func invokeAuthorizePage(_ params: String) {
-        print("ViewController#invokeAuthorizePage")
-        let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/static/post.html?\(params)&token4app=\(token!)")! as URL)
+    func resumeSecureWebview(_ params: String) {
+        print("ViewController#resumeSecureWebview")
+        let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/static/resumeSecureWebview.html?\(params)&token4app=\(token!)")! as URL)
         present(safariView, animated: true, completion: nil)
     }
 }
@@ -99,10 +99,10 @@ extension ViewController: WKScriptMessageHandler {
                 print(data)
                 let op = data["op"] as! String?
                 switch op! {
-                case "login":
-                    invokeAppLoginPage()
-                case "auth":
-                    invokeAuthorizePage(data["params"] as! String)
+                case "startSecureWebview":
+                    startSecureWebview()
+                case "resumeSecureWebview":
+                    resumeSecureWebview(data["params"] as! String)
                 default:
                     return
                 }

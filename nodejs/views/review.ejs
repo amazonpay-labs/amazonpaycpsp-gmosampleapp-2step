@@ -204,7 +204,7 @@
     <input type="hidden" id="Token" name="Token">
 </form>
 
-<form id="AmazonpayThanksCall" action="/sample/thanks" method="POST">
+<form id="AmazonpayThanksCall" action="/thanks" method="POST">
     <input type="hidden" id="ShopID" name="ShopID">
     <input type="hidden" id="OrderID" name="OrderID">
     <input type="hidden" id="Status" name="Status">
@@ -223,7 +223,7 @@
     document.getElementById("purchaseButton").addEventListener('click', (e) => {
         $.ajax({
             type: 'POST',
-            url: '/sample/checkoutSession',
+            url: '/checkoutSession',
             data: {},
         })
         .then(
@@ -232,10 +232,10 @@
                 if(json.params) {
                     if(window.androidApp) {
                         coverScreen();
-                        androidApp.auth(json.params);
+                        androidApp.resumeSecureWebview(json.params);
                     } else if(window.webkit && webkit.messageHandlers && webkit.messageHandlers.iosApp) {
                         coverScreen();
-                        webkit.messageHandlers.iosApp.postMessage({op: 'auth', ...json});            
+                        webkit.messageHandlers.iosApp.postMessage({op: 'resumeSecureWebview', ...json});            
                     } else {
                         const arc = document.getElementById('AmazonpayRedirectCall');
                         arc.action = getParameter("StartURL", json.params);
@@ -261,21 +261,21 @@
         // Android App
         document.getElementById("changeButton1").addEventListener('click', (e) => {
             coverScreen();
-            androidApp.login();
+            androidApp.startSecureWebview();
         });
         document.getElementById("changeButton2").addEventListener('click', (e) => {
             coverScreen();
-            androidApp.login();
+            androidApp.startSecureWebview();
         });
     } else if (window.webkit && webkit.messageHandlers && webkit.messageHandlers.iosApp) {
         // iOS App
         document.getElementById("changeButton1").addEventListener('click', (e) => {
             coverScreen();
-            webkit.messageHandlers.iosApp.postMessage({op: 'login'});            
+            webkit.messageHandlers.iosApp.postMessage({op: 'startSecureWebview'});            
         });
         document.getElementById("changeButton2").addEventListener('click', (e) => {
             coverScreen();
-            webkit.messageHandlers.iosApp.postMessage({op: 'login'});            
+            webkit.messageHandlers.iosApp.postMessage({op: 'startSecureWebview'});            
         });
     } else {
         // Browser

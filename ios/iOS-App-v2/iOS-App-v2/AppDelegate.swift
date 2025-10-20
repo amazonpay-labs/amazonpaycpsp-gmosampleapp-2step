@@ -33,7 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             if (vc?.token! == urlParams["token"]!) { // tokenの一致判定
                 // 一致した場合には、購入ページのURLをViewControllerに設定
-                vc?.webviewUrl = "/sample/checkoutReview?amazonCheckoutSessionId=\(urlParams["amazonCheckoutSessionId"]!)"
+                vc?.webviewUrl = "/review?amazonCheckoutSessionId=\(urlParams["amazonCheckoutSessionId"]!)"
             } else {
                 // 不一致の場合には不正な遷移であるため、エラーページを設定
                 vc?.webviewUrl = "static/sample/error.html"
@@ -63,8 +63,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             // Thanksページ起動のパラメータをViewControllerに設定
             vc?.webviewParams = urlParams["params"]!
-        } else { // キャンセル
-            // 必要に応じて実装する.
+        } else { // Thanksページ表示
+            // Amazon PayのAuthorizeページ(スピナーページ)上で処理失敗後にCancelされた場合でもCartページに戻れるよう、戻り先URLを指定する.
+            vc?.webviewUrl = "/cart"
         }
         
         // SFSafariViewのclose (この後、ViewController#viewDidAppearに処理が移る)

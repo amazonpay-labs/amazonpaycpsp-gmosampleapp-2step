@@ -52,9 +52,12 @@ public class AmazonPayActivity extends AppCompatActivity {
                 map.put(kv[0], kv[1]);
             }
 
+            Log.d("[AppLink]", "map=" + map);
+            Log.d("[AppLink]", "token=" + MainActivity.token);
+
             if (MainActivity.token.equals(map.get("token"))) { // tokenの一致判定
                 // 一致した場合には、購入ページのURLをMainActivityに設定
-                MainActivity.webviewUrl = "/sample/checkoutReview?amazonCheckoutSessionId=" + map.get("amazonCheckoutSessionId");
+                MainActivity.webviewUrl = "/review?amazonCheckoutSessionId=" + map.get("amazonCheckoutSessionId");
             } else {
                 // 不一致の場合には不正な遷移であるため、エラーページを設定
                 MainActivity.webviewUrl = "/static/sample/error.html";
@@ -63,12 +66,13 @@ public class AmazonPayActivity extends AppCompatActivity {
         } else {
             Log.d("[Intent]", "Implicit intent received!");
             Log.d("[Intent]", intent.getStringExtra("mode"));
-            if(intent.getStringExtra("mode").equals("thanks")) {
+            if(intent.getStringExtra("mode").equals("thanks")) { // Thanksページ表示
                 String params = intent.getStringExtra("params");
                 Log.d("[Intent]", params);
                 MainActivity.webviewParams = params;
-            } else {
-                MainActivity.webviewUrl = "/sample/cart";
+            } else { // Thanksページ表示
+                // Amazon PayのAuthorizeページ(スピナーページ)上で処理失敗後にCancelされた場合でもCartページに戻れるよう、戻り先URLを指定する.
+                MainActivity.webviewUrl = "/cart";
             }
         }
 

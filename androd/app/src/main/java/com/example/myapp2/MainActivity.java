@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         myWebView.addJavascriptInterface(this, "androidApp");
-        myWebView.loadUrl("http://10.0.2.2:3080/sample/cart");
+        myWebView.loadUrl("http://10.0.2.2:3080/cart");
     }
 
     @Override
@@ -69,16 +69,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @JavascriptInterface
-    public void login() {
+    public void startSecureWebview() {
         token = UUID.randomUUID().toString();
         Log.d("[JsCallback - login]", "token=" + token);
-        invokeSecureWebview(this, "https://10.0.2.2:3443/appLogin?client=androidApp&token=" + token);
+        invokeSecureWebview(this, "https://10.0.2.2:3443/startSecureWebview?client=androidApp&token=" + token);
     }
 
     @JavascriptInterface
-    public void auth(String params) {
+    public void resumeSecureWebview(String params) {
         Log.d("[JsCallback - auth]", "params: " + params + ", token: " + token);
-        invokeSecureWebview(this, "https://10.0.2.2:3443/static/post.html?" + params + "&token4app=" + token);
+        invokeSecureWebview(this, "https://10.0.2.2:3443/static/resumeSecureWebview.html?" + params + "&token4app=" + token);
     }
 
     private void invokeSecureWebview(Context context, String url) {

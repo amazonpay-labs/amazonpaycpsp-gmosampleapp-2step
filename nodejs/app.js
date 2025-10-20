@@ -39,26 +39,26 @@ const crypto = require('crypto');
 app.use('/static', express.static('static'));
 
 //-------------------
-// Cart Screen
+// Cart Page
 //-------------------
-app.get('/sample/cart', async (req, res) => {
-    res.render ('sample/cart.ejs');
+app.get('/cart', async (req, res) => {
+    res.render ('cart.ejs');
 });
 
 //-------------------
 // App Login Screen
 //-------------------
-app.get('/appLogin', async (req, res) => {
+app.get('/startSecureWebview', async (req, res) => {
     res.render (
-        'appLogin.ejs', 
+        'startSecureWebview.ejs', 
         {client: req.query.client}
     );
 });
 
 //-------------------------
-// Checkout Review Screen
+// Review Page
 //-------------------------
-app.get('/sample/checkoutReview', async (req, res) => {
+app.get('/review', async (req, res) => {
     // 受注情報
     let order = {amazonCheckoutSessionId: req.query.amazonCheckoutSessionId,
         client: req.cookies.client, hd8: req.cookies.hd8, hd10: req.cookies.hd10, items: []};
@@ -78,13 +78,13 @@ app.get('/sample/checkoutReview', async (req, res) => {
     // Note: 一般的には受注情報はSessionやDBなどを使ってServer側に保持しますが、本サンプルではシンプルにするためにCookieを使用しています
     res.cookie('session', JSON.stringify(order), {secure: false}); // ここではテストのため、localhostへはhttpでアクセスするため、secure属性を付与しない。
     
-    res.render('sample/checkoutReview.ejs', order);
+    res.render('review.ejs', order);
 });
 
 //-----------------------------
 // Checkout Session Update API
 //-----------------------------
-app.post('/sample/checkoutSession', async (req, res) => {
+app.post('/checkoutSession', async (req, res) => {
     const order = JSON.parse(req.cookies.session);
     order.id = crypto.randomBytes(13).toString('hex');
     console.log(`OrderID: ${order.id}`);
@@ -97,8 +97,8 @@ app.post('/sample/checkoutSession', async (req, res) => {
         AmazonpayType: '4',
     });
 
-    const url = order.client === 'browser' ? "https://localhost:3443/sample/thanks" :
-        `https://${order.client === 'iosApp' ? 'localhost' : '10.0.2.2'}:3443/sample/dispatch?client=${order.client}`;
+    const url = order.client === 'browser' ? "https://localhost:3443/thanks" :
+        `https://${order.client === 'iosApp' ? 'localhost' : '10.0.2.2'}:3443/endSecureWebview?client=${order.client}`;
     order.start = await callAPI('ExecTranAmazonpay', {
         ...keyinfo,
         ...order.access,
@@ -118,20 +118,20 @@ app.post('/sample/checkoutSession', async (req, res) => {
     res.end()
 });
 
-app.post('/sample/dispatch', async (req, res) => {
+app.post('/endSecureWebview', async (req, res) => {
     console.log(req.query.client);
     // Objectをkey1=value1&key2=value2...の形に変換する.
     const plainParams = Object.keys(req.body).map(k => `${k}=${encodeURIComponent(req.body[k])}`).join('&');
     const params = encodeURIComponent(plainParams);
     console.log(params);
 
-    res.render('sample/dispatch.ejs', {client: req.query.client, params: params});
+    res.render('endSecureWebview.ejs', {client: req.query.client, params: params});
 });
 
 //-------------------
 // Thanks Screen
 //-------------------
-app.post('/sample/thanks', async (req, res) => {
+app.post('/thanks', async (req, res) => {
     const order = JSON.parse(req.cookies.session);
     console.log(`OrderID: ${order.id}`);
     console.log(`AmazonpayStart: ${JSON.stringify(req.body, null, 2)}`);
@@ -154,7 +154,7 @@ app.post('/sample/thanks', async (req, res) => {
     order.result = req.body;
     res.cookie('session', JSON.stringify(order), {secure: false});
 
-    res.render('sample/thanks.ejs', order);
+    res.render('thanks.ejs', order);
 });
 
 //-------------------

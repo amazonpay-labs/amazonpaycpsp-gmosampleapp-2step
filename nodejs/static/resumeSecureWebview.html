@@ -30,12 +30,15 @@
         const tokenFromCookie = tokenKv ? tokenKv.split('=')[1] : null;
         const tokenFromParam = getURLParameter("secureToken", location.search);
 
-        if(tokenFromCookie === tokenFromParam) {
+        // Open Redirector対策のため、secureTokenと遷移先Domainのチェックを行う.
+        if(tokenFromCookie === tokenFromParam) { // secureToken一致チェック
             const arc = document.getElementById('AmazonpayRedirectCall');
             arc.action = getURLParameter("StartURL", location.search);
-            document.getElementById('AccessID').value = getURLParameter("AccessID", location.search)
-            document.getElementById('Token').value = getURLParameter("Token", location.search);
-            arc.submit();
+            if(/^https:\/\/(?:[^/]+\.|)mul-pay.jp(?:[\/?#]|$)/.test(arc.action)) { // domainチェック
+                document.getElementById('AccessID').value = getURLParameter("AccessID", location.search)
+                document.getElementById('Token').value = getURLParameter("Token", location.search);
+                arc.submit();
+            }
         }
     </script>
 </body>

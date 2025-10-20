@@ -147,24 +147,6 @@
                 algorithm: 'AMZN-PAY-RSASSA-PSS-V2'
             }
         });
-        // amazon.Pay.renderButton('#AmazonPayButton', {
-        //     // set checkout environment
-        //     merchantId: 'A23YM23UEBY8FM',
-        //     ledgerCurrency: 'JPY',
-        //     // customize the buyer experience
-        //     checkoutLanguage: 'ja_JP',
-        //     productType: 'PayAndShip',
-        //     placement: 'Cart',
-        //     sandbox: true,
-        //     buttonColor: 'Gold',
-        //     // configure Create Checkout Session request
-        //     createCheckoutSessionConfig: {                     
-        //         payloadJSON: '{"webCheckoutDetails":{"checkoutReviewReturnUrl":"https://localhost:3443/sample/checkoutReview"},"storeId":"amzn1.application-oa2-client.242a859efb5f47f09847f3f0aebd50ca","scopes":["name","email","phoneNumber","billingAddress"]}', // string generated in step 2
-        //         signature: 'AYZBBDCHz3HKmU14WbHFl3iFZr+pb6HxtsS1xsxXgEPWWiTFh/OMGvtliKt3JyLqTSbA5RfxAk/cLpCsPq1CoW6n2m3oTKC2BuaCWpurPHxIMrCEWvgKVde1RKZ+5I565ZlbPMHQvKTY/H787CVQFZJ9wrBDfyHvwtd+qAcvTFS4UN6DJN1OAdSuoV7le/fGdosAixGURfekM2jYwzDEvY3xlGHWxuhN+7wwZ/xCESj9BFGR6c+gZh0tlCLMhWYDodjvNYKPDz7rhiJb7K5KzUFM08FGxcKuV1Avpkdqp73YKZl+7j/5yo4PI9ZTRfXmNSi2y5QEIhoWyhxd0sq0MA==', // signature generated in step 3
-        //         publicKeyId: 'SANDBOX-AGH2Y6VC2VAUJ27GG6VDFOTD',
-        //         algorithm: 'AMZN-PAY-RSASSA-PSS-V2'
-        //     }
-        // });
     } else {
         let node = document.createElement("input");
         node.type = "image";

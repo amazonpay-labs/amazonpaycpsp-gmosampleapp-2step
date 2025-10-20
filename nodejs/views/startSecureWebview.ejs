@@ -48,7 +48,7 @@
         return decodeURIComponent((new RegExp('[?|&amp;|#]' + name + '=' +
                         '([^&;]+?)(&|#|;|$)').exec(source) || [, ""])[1].replace(/\+/g, '%20')) || null;
     }
-    document.cookie = `token=${getURLParameter('token', location.search)}; path=/;` // Cookieにtokenを保存
+    document.cookie = `secureToken=${getURLParameter('secureToken', location.search)}; path=/;` // CookieにsecureTokenを保存
 
     amazon.Pay.initCheckout({
         // set checkout environment

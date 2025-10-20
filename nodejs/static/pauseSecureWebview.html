@@ -26,9 +26,7 @@
     document.getElementById("nextButton").href = 
         "https://dzpmbh5sopa6k.cloudfront.net/index.html" 
             + location.search + '&'
-            + document.cookie.split('; ').find(function(kv) {return kv.startsWith('token=')}); // Cookieよりtokenを取得
-    // document.getElementById("nextButton").href = 
-    //     "https://dzpmbh5sopa6k.cloudfront.net/index.html" + location.search;
+            + document.cookie.split('; ').find(function(kv) {return kv.startsWith('secureToken=')}); // CookieよりsecureTokenを取得
 </script>
 </body>
 </html>

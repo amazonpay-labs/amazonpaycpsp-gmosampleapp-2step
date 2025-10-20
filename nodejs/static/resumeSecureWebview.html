@@ -26,9 +26,9 @@
                             '([^&;]+?)(&|#|;|$)').exec(source) || [, ""])[1].replace(/\+/g, '%20')) || null;
         }
 
-        const tokenKv = document.cookie.split('; ').find(function(kv) {return kv.startsWith('token=')});
+        const tokenKv = document.cookie.split('; ').find(function(kv) {return kv.startsWith('secureToken=')});
         const tokenFromCookie = tokenKv ? tokenKv.split('=')[1] : null;
-        const tokenFromParam = getURLParameter("token4app", location.search);
+        const tokenFromParam = getURLParameter("secureToken", location.search);
 
         if(tokenFromCookie === tokenFromParam) {
             const arc = document.getElementById('AmazonpayRedirectCall');

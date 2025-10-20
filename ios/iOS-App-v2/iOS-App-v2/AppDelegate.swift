@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // SFSafariViewConrollerの取得(表示されていた場合のみ)
             let sfsv = vc?.presentedViewController
             
-            if (vc?.token! == urlParams["token"]!) { // tokenの一致判定
+            if (vc?.secureToken! == urlParams["secureToken"]!) { // tokenの一致判定
                 // 一致した場合には、購入ページのURLをViewControllerに設定
                 vc?.webviewUrl = "/review?amazonCheckoutSessionId=\(urlParams["amazonCheckoutSessionId"]!)"
             } else {

@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
-    static volatile String token = null;
+    static volatile String secureToken = null;
     static volatile String webviewUrl = null;
     static volatile String webviewParams = null;
     private WebView myWebView;
@@ -70,15 +70,15 @@ public class MainActivity extends AppCompatActivity {
 
     @JavascriptInterface
     public void startSecureWebview() {
-        token = UUID.randomUUID().toString();
-        Log.d("[JsCallback - login]", "token=" + token);
-        invokeSecureWebview(this, "https://10.0.2.2:3443/startSecureWebview?client=androidApp&token=" + token);
+        secureToken = UUID.randomUUID().toString();
+        Log.d("[JsCallback - login]", "secureToken=" + secureToken);
+        invokeSecureWebview(this, "https://10.0.2.2:3443/startSecureWebview?client=androidApp&secureToken=" + secureToken);
     }
 
     @JavascriptInterface
     public void resumeSecureWebview(String params) {
-        Log.d("[JsCallback - auth]", "params: " + params + ", token: " + token);
-        invokeSecureWebview(this, "https://10.0.2.2:3443/static/resumeSecureWebview.html?" + params + "&token4app=" + token);
+        Log.d("[JsCallback - auth]", "params: " + params + ", secureToken: " + secureToken);
+        invokeSecureWebview(this, "https://10.0.2.2:3443/static/resumeSecureWebview.html?" + params + "&secureToken=" + secureToken);
     }
 
     private void invokeSecureWebview(Context context, String url) {

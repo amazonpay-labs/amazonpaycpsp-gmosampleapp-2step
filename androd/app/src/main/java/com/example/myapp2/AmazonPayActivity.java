@@ -52,10 +52,8 @@ public class AmazonPayActivity extends AppCompatActivity {
                 map.put(kv[0], kv[1]);
             }
 
-            Log.d("[AppLink]", "map=" + map);
-            Log.d("[AppLink]", "token=" + MainActivity.token);
-
-            if (MainActivity.token.equals(map.get("token"))) { // tokenの一致判定
+            Log.d("[AppLink]", "secureToken: app=" + MainActivity.secureToken + ", url=" + map.get("secureToken"));
+            if (MainActivity.secureToken.equals(map.get("secureToken"))) { // secureTokenの一致判定
                 // 一致した場合には、購入ページのURLをMainActivityに設定
                 MainActivity.webviewUrl = "/review?amazonCheckoutSessionId=" + map.get("amazonCheckoutSessionId");
             } else {

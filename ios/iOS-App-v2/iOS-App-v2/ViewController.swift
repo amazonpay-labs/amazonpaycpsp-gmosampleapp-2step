@@ -13,7 +13,7 @@ import SafariServices
 class ViewController: UIViewController {
 //class ViewController: UIViewController {
     
-    var token: String?
+    var secureToken: String?
     var webviewUrl: String?
     var webviewParams: String?
 
@@ -75,14 +75,14 @@ class ViewController: UIViewController {
     func startSecureWebview() {
         print("ViewController#startSecureWebview")
         
-        token = UUID().uuidString.lowercased()
-        let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/startSecureWebview?client=iosApp&token=\(token!)")! as URL)
+        secureToken = UUID().uuidString.lowercased()
+        let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/startSecureWebview?client=iosApp&secureToken=\(secureToken!)")! as URL)
         present(safariView, animated: true, completion: nil)
     }
     
     func resumeSecureWebview(_ params: String) {
         print("ViewController#resumeSecureWebview")
-        let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/static/resumeSecureWebview.html?\(params)&token4app=\(token!)")! as URL)
+        let safariView = SFSafariViewController(url: NSURL(string: "https://localhost:3443/static/resumeSecureWebview.html?\(params)&secureToken=\(secureToken!)")! as URL)
         present(safariView, animated: true, completion: nil)
     }
 }

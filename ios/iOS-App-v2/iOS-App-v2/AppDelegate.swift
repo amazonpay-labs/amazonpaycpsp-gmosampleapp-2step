@@ -54,7 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // SFSafariViewConrollerの取得(表示されていた場合のみ)
         let sfsv = vc?.presentedViewController
 
-        if(url.host! == "thanks") {
+        if(url.host! == "thanks") { // Thanksページ表示
             // URLパラメタのパース
             var urlParams = Dictionary<String, String>.init()
             for param in url.query!.components(separatedBy: "&") {
@@ -63,12 +63,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             // Thanksページ起動のパラメータをViewControllerに設定
             vc?.webviewParams = urlParams["params"]!
-        } else {
-            // Cancelの場合、CartページのURLをViewControllerに設定して戻る
-            vc?.webviewUrl = "/sample/cart"
+        } else { // キャンセル
+            // 必要に応じて実装する.
         }
         
-        // SFSafariViewのclose (この後、ViewController#viewDidLoadに処理が移る)
+        // SFSafariViewのclose (この後、ViewController#viewDidAppearに処理が移る)
         (sfsv as? SFSafariViewController)?.dismiss(animated: false, completion: nil)
         
         return true

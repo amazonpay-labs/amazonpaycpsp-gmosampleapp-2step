@@ -42,10 +42,7 @@ app.use('/static', express.static('static'));
 // Cart Screen
 //-------------------
 app.get('/sample/cart', async (req, res) => {
-    res.render (
-        'sample/cart.ejs', 
-        {}
-    );
+    res.render ('sample/cart.ejs');
 });
 
 //-------------------
@@ -115,8 +112,6 @@ app.post('/sample/checkoutSession', async (req, res) => {
     res.cookie('session', JSON.stringify(order), {secure: false});
 
     const params = Object.keys(order.start).map(k => `${k}=${encodeURIComponent(order.start[k])}`).join('&');
-    // const params = encodeURIComponent(plainParams);
-    // const resBody = Object.keys(order.start).reduce((o, k) => {o[k] = encodeURIComponent(order.start[k]); return o}, {});
 
     res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8'});
     res.write(JSON.stringify({params}));

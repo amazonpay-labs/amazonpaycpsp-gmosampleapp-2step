@@ -18,13 +18,43 @@
     <!-- Custom styles for this template -->
     <link href="/static/css/shop-confirmation.css" rel="stylesheet">
 
+    <style>
+        .popup-cover {
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,.9);
+            top: 0;
+            left: 0;
+            z-index: 1001;
+        }
+        .loader {
+            width: 50px;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background:
+                radial-gradient(farthest-side,#ffa516 94%,#0000) top/8px 8px no-repeat,
+                conic-gradient(#0000 30%,#ffa516);
+            -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 8px),#000 0);
+            animation: l13 1s infinite linear;
+            text-align: center;
+        }
+        @keyframes l13{
+            100%{transform: rotate(1turn)}
+        }
+    </style>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
     
 </head>
 
 <body data-gr-c-s-loaded="true">
-<div id="white_cover" style="width:100%; height:100vh; background-color:#fff; position:relative; z-index:1000; display:none;"></div>
+<div id="white_cover" class="popup-cover" style="display: none;">
+    <div class="loader"></div>
+</div>
 
 <!-- Page Content -->
 <div class="container">
@@ -276,7 +306,7 @@
     }
     
     function coverScreen() {
-        document.getElementById('white_cover').style.display = 'block';
+        document.getElementById('white_cover').style.display = 'flex';
     }
 
     function uncoverScreen() {

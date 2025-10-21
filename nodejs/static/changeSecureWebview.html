@@ -53,8 +53,8 @@
 
     if(tokenFromCookie === tokenFromParam) { // secureToken一致チェック
         amazon.Pay.bindChangeAction('#changeButton', {
-            amazonCheckoutSessionId: getURLParameter('amazonCheckoutSessionId', location.search),
-            changeAction: getURLParameter('changeAction', location.search)
+            amazonCheckoutSessionId: getURLParameter('id', location.search),
+            changeAction: getURLParameter('action', location.search)
         });
 
         setTimeout(() => {

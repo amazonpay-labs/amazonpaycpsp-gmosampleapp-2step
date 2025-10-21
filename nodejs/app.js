@@ -45,9 +45,9 @@ app.get('/cart', async (req, res) => {
     res.render ('cart.ejs');
 });
 
-//-------------------
-// App Login Screen
-//-------------------
+//------------------------------------------------
+// Start Secure WebView Page (Only for MobileApp)
+//------------------------------------------------
 app.get('/startSecureWebview', async (req, res) => {
     res.render (
         'startSecureWebview.ejs', 
@@ -59,65 +59,78 @@ app.get('/startSecureWebview', async (req, res) => {
 // Review Page
 //-------------------------
 app.get('/review', async (req, res) => {
-    // 受注情報
-    let order = {amazonCheckoutSessionId: req.query.amazonCheckoutSessionId,
-        client: req.cookies.client, hd8: req.cookies.hd8, hd10: req.cookies.hd10, items: []};
-    console.log(`AmazonCheckoutSessionID: ${order.amazonCheckoutSessionId}`);
-    order.items.push({id: 'item0008', name: 'Fire HD8', price: 8980, num: parseInt(order.hd8)});
-    order.items.push({id: 'item0010', name: 'Fire HD10', price: 15980, num: parseInt(order.hd10)});
-    order.items.forEach(item => item.summary = item.price * item.num); // 小計
-    order.price = order.items.map(item => item.summary).reduce((pre, cur) => pre + cur); // 合計金額
-    order.chargeAmount = Math.floor(order.price * 1.1); // 税込金額
+    try {
+        // 受注情報
+        let order = {amazonCheckoutSessionId: req.query.amazonCheckoutSessionId,
+            client: req.cookies.client, hd8: req.cookies.hd8, hd10: req.cookies.hd10, items: []};
+        console.log(`AmazonCheckoutSessionID: ${order.amazonCheckoutSessionId}`);
+        order.items.push({id: 'item0008', name: 'Fire HD8', price: 8980, num: parseInt(order.hd8)});
+        order.items.push({id: 'item0010', name: 'Fire HD10', price: 15980, num: parseInt(order.hd10)});
+        order.items.forEach(item => item.summary = item.price * item.num); // 小計
+        order.price = order.items.map(item => item.summary).reduce((pre, cur) => pre + cur); // 合計金額
+        order.chargeAmount = Math.floor(order.price * 1.1); // 税込金額
 
-    // Amazon Pay受注情報
-    const address = await callAPI('SearchAddressAmazonpay', 
-        {AmazonCheckoutSessionID: order.amazonCheckoutSessionId, ...keyinfo});
-    // address.AmazonCheckoutSessionID = req.query.amazonCheckoutSessionId;
-    order.address = address;
+        // Amazon Pay受注情報
+        const address = await callAPI('SearchAddressAmazonpay', 
+            {AmazonCheckoutSessionID: order.amazonCheckoutSessionId, ...keyinfo});
+        // address.AmazonCheckoutSessionID = req.query.amazonCheckoutSessionId;
+        order.address = address;
 
-    // Note: 一般的には受注情報はSessionやDBなどを使ってServer側に保持しますが、本サンプルではシンプルにするためにCookieを使用しています
-    res.cookie('session', JSON.stringify(order), {secure: false}); // ここではテストのため、localhostへはhttpでアクセスするため、secure属性を付与しない。
-    
-    res.render('review.ejs', order);
+        // Note: 一般的には受注情報はSessionやDBなどを使ってServer側に保持しますが、本サンプルではシンプルにするためにCookieを使用しています
+        res.cookie('session', JSON.stringify(order), {secure: false}); // ここではテストのため、localhostへはhttpでアクセスするため、secure属性を付与しない。
+        
+        res.render('review.ejs', order);
+    } catch (err) {
+        console.error(err);
+        res.redirect('/static/sample/error.html');
+    }
 });
 
-//-----------------------------
+//-------------------------------
 // Checkout Session Update API
-//-----------------------------
+//-------------------------------
 app.post('/checkoutSession', async (req, res) => {
-    const order = JSON.parse(req.cookies.session);
-    order.id = crypto.randomBytes(13).toString('hex');
-    console.log(`OrderID: ${order.id}`);
+    try {
+        const order = JSON.parse(req.cookies.session);
+        order.id = crypto.randomBytes(13).toString('hex');
+        console.log(`OrderID: ${order.id}`);
 
-    order.access = await callAPI('EntryTranAmazonpay', {
-        ...keyinfo,
-        OrderID: order.id,
-        JobCd: 'AUTH',
-        Amount: `${order.chargeAmount}`,
-        AmazonpayType: '4',
-    });
+        order.access = await callAPI('EntryTranAmazonpay', {
+            ...keyinfo,
+            OrderID: order.id,
+            JobCd: 'AUTH',
+            Amount: `${order.chargeAmount}`,
+            AmazonpayType: '4',
+        });
 
-    const url = order.client === 'browser' ? "https://localhost:3443/thanks" :
-        `https://${order.client === 'iosApp' ? 'localhost' : '10.0.2.2'}:3443/endSecureWebview?client=${order.client}`;
-    order.start = await callAPI('ExecTranAmazonpay', {
-        ...keyinfo,
-        ...order.access,
-        OrderID: order.id,
-        RetURL: url,
-        AmazonCheckoutSessionID: order.amazonCheckoutSessionId,
-        Description: "ご購入ありがとうございます。",
-    });
+        const url = order.client === 'browser' ? "https://localhost:3443/thanks" :
+            `https://${order.client === 'iosApp' ? 'localhost' : '10.0.2.2'}:3443/endSecureWebview?client=${order.client}`;
+        order.start = await callAPI('ExecTranAmazonpay', {
+            ...keyinfo,
+            ...order.access,
+            OrderID: order.id,
+            RetURL: url,
+            AmazonCheckoutSessionID: order.amazonCheckoutSessionId,
+            Description: "ご購入ありがとうございます。",
+        });
 
-    // Note: 一般的には受注情報はSessionやDBなどを使ってServer側に保持しますが、本サンプルではシンプルにするためにCookieを使用しています
-    res.cookie('session', JSON.stringify(order), {secure: false});
+        // Note: 一般的には受注情報はSessionやDBなどを使ってServer側に保持しますが、本サンプルではシンプルにするためにCookieを使用しています
+        res.cookie('session', JSON.stringify(order), {secure: false});
 
-    const params = Object.keys(order.start).map(k => `${k}=${encodeURIComponent(order.start[k])}`).join('&');
+        const params = Object.keys(order.start).map(k => `${k}=${encodeURIComponent(order.start[k])}`).join('&');
 
-    res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8'});
-    res.write(JSON.stringify({params}));
+        res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8'});
+        res.write(JSON.stringify({params}));
+    } catch (err) {
+        console.error(err);
+        res.writeHead(500, {'Content-Type': 'application/json; charset=UTF-8'});
+    }
     res.end()
 });
 
+//------------------------------------------------
+// End Secure WebView Page (Only for MobileApp)
+//------------------------------------------------
 app.post('/endSecureWebview', async (req, res) => {
     console.log(req.query.client);
     // Objectをkey1=value1&key2=value2...の形に変換する.
@@ -132,29 +145,37 @@ app.post('/endSecureWebview', async (req, res) => {
 // Thanks Screen
 //-------------------
 app.post('/thanks', async (req, res) => {
-    const order = JSON.parse(req.cookies.session);
-    console.log(`OrderID: ${order.id}`);
-    console.log(`AmazonpayStart: ${JSON.stringify(req.body, null, 2)}`);
+    try {
+        const order = JSON.parse(req.cookies.session);
+        console.log(`OrderID: ${order.id}`);
+        console.log(`AmazonpayStart: ${JSON.stringify(req.body, null, 2)}`);
 
-    // Security Check
-    const textToHash = `${order.id}${order.access.AccessID}${keyinfo.ShopID}${keyinfo.ShopPass}${req.body.AmazonChargePermissionID}`;
-    const hash = crypto.createHash('sha256').update(textToHash).digest('hex');
-    console.log(`Hash: ${hash}`);
-    if(hash !== req.body.CheckString) throw new Error('CheckStringが一致しません。');
+        // Security Check
+        const textToHash = `${order.id}${order.access.AccessID}${keyinfo.ShopID}${keyinfo.ShopPass}${req.body.AmazonChargePermissionID}`;
+        const hash = crypto.createHash('sha256').update(textToHash).digest('hex');
+        console.log(`Hash: ${hash}`);
+        if(hash !== req.body.CheckString) throw new Error('CheckStringが一致しません。');
 
-    // 注文確定
-    order.sales = await callAPI('AmazonpaySales', {
-        ...keyinfo,
-        ...order.access,
-        OrderID: order.id,
-        Amount: `${order.chargeAmount}`,
-    });
+        // Status Check
+        if(req.body.Status !== 'AUTH' || req.body.ErrCode) throw new Error(`ステータス不正: ${JSON.stringify(req.body)}`);
 
-    // Note: 一般的には受注情報はSessionやDBなどを使ってServer側に保持しますが、本サンプルではシンプルにするためにCookieを使用しています
-    order.result = req.body;
-    res.cookie('session', JSON.stringify(order), {secure: false});
+        // 注文確定
+        order.sales = await callAPI('AmazonpaySales', {
+            ...keyinfo,
+            ...order.access,
+            OrderID: order.id,
+            Amount: `${order.chargeAmount}`,
+        });
 
-    res.render('thanks.ejs', order);
+        // Note: 一般的には受注情報はSessionやDBなどを使ってServer側に保持しますが、本サンプルではシンプルにするためにCookieを使用しています
+        order.result = req.body;
+        res.cookie('session', JSON.stringify(order), {secure: false});
+
+        res.render('thanks.ejs', order);
+    } catch (err) {
+        console.error(err);
+        res.redirect('/static/sample/error.html');
+    }
 });
 
 //-------------------
@@ -163,7 +184,7 @@ app.post('/thanks', async (req, res) => {
 async function callAPI(name, params) {
     const res = await axios.post(`https://pt01.mul-pay.jp/payment/${name}.idPass`,
         querystring.stringify(params));
-    if(res.statusText !== 'OK') throw new Error(`${res.status} エラーが発生しました。再度やり直して下さい。`);
+    if(res.statusText !== 'OK') throw new Error(`${res.status}:${res.statusText} エラーが発生しました。再度やり直して下さい。`);
     const obj = {};
     res.data.split('&').forEach((item) => {
         const [key, value] = item.split('=');

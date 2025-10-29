@@ -34,7 +34,7 @@
         if(tokenFromCookie === tokenFromParam) { // secureToken一致チェック
             const arc = document.getElementById('AmazonpayRedirectCall');
             arc.action = getURLParameter("StartURL", location.search);
-            if(/^https:\/\/(?:[^/]+\.|)mul-pay.jp(?:[\/?#]|$)/.test(arc.action)) { // domainチェック
+            if(/^https:\/\/(?:[a-zA-Z0-9-]+\.|)mul-pay.jp\//.test(arc.action)) { // domainチェック
                 document.getElementById('AccessID').value = getURLParameter("AccessID", location.search)
                 document.getElementById('Token').value = getURLParameter("Token", location.search);
                 arc.submit();

@@ -73,7 +73,6 @@ app.get('/review', async (req, res) => {
         // Amazon Pay受注情報
         const address = await callAPI('SearchAddressAmazonpay', 
             {AmazonCheckoutSessionID: order.amazonCheckoutSessionId, ...keyinfo});
-        // address.AmazonCheckoutSessionID = req.query.amazonCheckoutSessionId;
         order.address = address;
 
         // Note: 一般的には受注情報はSessionやDBなどを使ってServer側に保持しますが、本サンプルではシンプルにするためにCookieを使用しています
@@ -117,6 +116,7 @@ app.post('/checkoutSession', async (req, res) => {
         // Note: 一般的には受注情報はSessionやDBなどを使ってServer側に保持しますが、本サンプルではシンプルにするためにCookieを使用しています
         res.cookie('session', JSON.stringify(order), {secure: false});
 
+        // ExecTranAmazonpayの戻り値のObjectを、"key1=value1&key2=value2..."の形式に変換
         const params = Object.keys(order.start).map(k => `${k}=${encodeURIComponent(order.start[k])}`).join('&');
 
         res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8'});

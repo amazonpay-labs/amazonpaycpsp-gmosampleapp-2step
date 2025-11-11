@@ -63,7 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             // Thanksページ起動のパラメータをViewControllerに設定
             vc?.webviewParams = urlParams["params"]!
-        } else { // Thanksページ表示
+        } else { // Cancel
             // Amazon PayのAuthorizeページ(スピナーページ)上で処理失敗後にCancelされた場合でもCartページに戻れるよう、戻り先URLを指定する.
             vc?.webviewUrl = "/cart"
         }

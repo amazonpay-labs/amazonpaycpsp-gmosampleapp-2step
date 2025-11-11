@@ -1,8 +1,8 @@
-# Amazon Pay モバイル サンプルアプリ Androidアプリの実装について
-本サンプルアプリの、Androidアプリ側の実装です。インストールして動作させる方法については、[こちら](./README_install.md)をご参照下さい。
+# Amazon Pay cPSP 2ステップ決済 モバイル サンプルアプリ Androidアプリの実装について
+GMO Payment Gateway Amazon Pay cPSP の2ステップ決済機能を使用したモバイルサンプルアプリの、Androidアプリ側の実装です。インストールして動作させる方法については、[こちら](./README_install.md)をご参照下さい。
 
 ## 動作環境
-Android 7以降: Google Chrome 64以降  
+Android 9以降: Google Chrome 78以降  
 [参考] https://pay.amazon.com/jp/help/202030010
 
 # その他の前提条件

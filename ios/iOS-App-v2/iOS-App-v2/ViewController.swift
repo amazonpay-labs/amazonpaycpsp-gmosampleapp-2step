@@ -11,7 +11,6 @@ import WebKit
 import SafariServices
 
 class ViewController: UIViewController {
-//class ViewController: UIViewController {
     
     var secureToken: String?
     var webviewUrl: String?
@@ -47,7 +46,7 @@ class ViewController: UIViewController {
 //            let _override = WKUserScript(source: "var console = { log: function(msg){window.webkit.messageHandlers.logging.postMessage(msg) }};", injectionTime: .atDocumentStart, forMainFrameOnly: true)
 //            userContentController.addUserScript(_override)
             
-            // WebViewの生成、orderページの読み込み
+            // WebViewの生成、cartページの読み込み
             webView = WKWebView(frame: rect, configuration: webConfig)
             let webUrl = URL(string: "http://localhost:3080/cart")!
             let myRequest = URLRequest(url: webUrl)
@@ -59,8 +58,8 @@ class ViewController: UIViewController {
             print("finished generating webView")
         } else {
             let url = webviewUrl
-            let params = webviewParams
             webviewUrl = nil
+            let params = webviewParams
             webviewParams = nil
             if(url != nil) {
                 webView.evaluateJavaScript("loadUrl('\(url!)')", completionHandler: nil)

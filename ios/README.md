@@ -1,4 +1,4 @@
-# Amazon Pay モバイル サンプルアプリ iOSアプリの実装について
+# Amazon Pay モバイル サンプルアプリ iOS編
 GMO Payment Gateway Amazon Pay cPSP の2ステップ決済機能を使用したモバイルサンプルアプリの、iOSアプリ側の実装です。インストールして動作させる方法については、[こちら](./README_install.md)をご参照下さい。
 
 # 動作環境
@@ -18,7 +18,7 @@ iOS バージョン12.3.1以降: Safari Mobile 12以降
 
 以後詳細な実装方法について解説します。
 
-# Amazon Payの実装方法 - WebViewアプリ編
+# Amazon Payの実装方法
 
 ## カートページ
 
@@ -136,7 +136,7 @@ WebView上では本物のAmazon Payボタンを配置できないので、ここ
 最初の判定で、通常のBrowserだった場合にはそのままAmazon Payの処理が実施できるので、通常通りAmazon Payボタンを読み込んでいます。  
 iOSの場合は、「Amazon Payボタン」画像のnodeを生成して同画面内の「AmazonPayButton」ノードの下に追加しています。  
 この時指定する「Amazon Payボタン」画像は「./nodejs/static/img/button_images」の下にあるものから選ぶようにして下さい。なお、本番環境向けにファイル名が「Sandbox_」で始まるものを指定しないよう、ご注意下さい。  
-また、この生成したnodeがclickされたとき、「login」を指定したObjectをパラメタとして、Native側のCallbackを呼び出すEvent Handlerをaddしています。  
+またaddEventListenerにより、ボタン画像がclickされたときに「startSecureWebview」を指定したObjectをパラメタとしてNative側のCallbackを呼び出します。  
 
 ### 「Amazon Payボタン」画像クリック時の、Secure WebViewの起動処理
 上記、「Amazon Payボタン」画像がクリックされたときに呼び出されるNative側のコードが、下記になります。  
@@ -157,7 +157,7 @@ extension ViewController: WKScriptMessageHandler {
                 let op = data["op"] as! String?
                 switch op! {
                 case "startSecureWebview":
-                    startSecureWebview()  // ← こちらが実行される.
+                    startSecureWebview()
                         :
                 }
             }
@@ -187,7 +187,7 @@ class ViewController: UIViewController {
 ```
 
 URLを指定して、SFSafariViewController(iOS側のSecure WebView)を起動しています。  
-なお、UUID(version 4)を生成して「secureToken」という名前で、Native側のFieldとURLのパラメタとして設定していますが、こちらの理由については後述します。  
+なお、UUID(version 4)を生成して「secureToken」という名前で、Native側のFieldと起動するURLのパラメタとして設定しています。これは後続の処理で特定のページやアプリへの遷移の妥当性をチェックするために利用します。  
 
 ## Amazonログイン画面への自動遷移
 
@@ -233,7 +233,7 @@ app.get('/startSecureWebview', async (req, res) => {
         }
     });
 ```
-※ <% 〜 %>で囲まれた部分はサーバー側でテンプレートとして実行される部分で、この場合はパラメタ「client」の値として「iosApp」が渡されているため、if文分岐でtrueの場合の側が描画されます。  
+※ <% 〜 %>で囲まれた部分はサーバー側でテンプレートとして実行される部分で、この場合はパラメタ「client」の値として「iosApp」が渡されているため、「else」より前の括弧内が描画されます。  
 
 こちらのスクリプトにより、cookieにURLパラメタ「secureToken」として渡された値が設定された後、initCheckoutが実行されてAmazon Payのログイン画面に自動遷移します。  
 
@@ -241,20 +241,22 @@ app.get('/startSecureWebview', async (req, res) => {
 
 initCheckoutの呼び出し処理のスクリプトはパラメタの正当性を担保するためのsignatureを計算して渡す必要があるなど、仕様が少々複雑です。
 しかし、[Code Generator](https://www.amazonpay-integration.com/v2/code-generator/signature-generator.html?processorSpecifications=gmopg)というツールを使うことで簡単に生成できます。  
+※ GMOPGの管理ページでもスクリプトの生成はできますが、一部対応していないAmazon Payの機能があるため、本サンプル用のスクリプトの生成ができません。よって、ここでは[Code Generator](https://www.amazonpay-integration.com/v2/code-generator/signature-generator.html?processorSpecifications=gmopg)をお使いください。  
+
 [Code Generator](https://www.amazonpay-integration.com/v2/code-generator/signature-generator.html?processorSpecifications=gmopg)にアクセスすると、下記のようなページが開きます。  
 
 ![](docimg/2025-11-06-11-22-20.png)  
 
 それぞれ下記のように入力します。  
-- MerchantId - SellerCentralより取得した出品者ID(参考: https://www.amazonpay-faq.jp/faq/QA-7)
+- MerchantId - SellerCentralより取得した出品者ID(参考: https://www.amazonpay-faq.jp/faq/QA-7 )
 - Type - 実装したいAmazon Payの機能に応じて選択。本サンプルでは「Onetime」を選択する。
-- Store ID - SellerCentralより取得したStore ID(参考: https://www.amazonpay-faq.jp/faq/QA-7)
-- Public Key Id - SellerCentralより取得したPublic Key Id(参考: https://www.amazonpay-faq.jp/faq/QA-59)
+- Store ID - SellerCentralより取得したStore ID(参考: https://www.amazonpay-faq.jp/faq/QA-7 )
+- Public Key Id - SellerCentralより取得したPublic Key Id(参考: https://www.amazonpay-faq.jp/faq/QA-59 )
 - Checkout Review ReturnUrl - Amazon Payで住所・支払方法選択後にリダイレクトされるURLで、通常Review画面へのURL. 本サンプルアプリ(iOS)では「https://localhost:3443/static/pauseSecureWebview.html 」。
-- Private Key - SellerCentralより取得したPrivate Key(参考: https://www.amazonpay-faq.jp/faq/QA-59)。ブラウザにUploadして使用するが、Code GeneratorではPrivate Keyはブラウザ内でしか利用せず、一切他のサーバー等には送信しないため、漏洩の心配はない。
+- Private Key - SellerCentralより取得したPrivate Key(参考: https://www.amazonpay-faq.jp/faq/QA-59 )。ブラウザにUploadして使用するが、Code GeneratorではPrivate Keyはブラウザ内でしか利用せず、一切他のサーバー等には送信しないため、漏洩の心配はない。
 - Product Type - 実装したいAmazon Payの機能に応じて選択。本サンプルでは「PayAndShip」を選択する。
 - Scopes - Amazon Payから取得する必要のあるユーザの情報に応じて指定。本サンプルではデフォルトのままで良い。
-- Checkout Cancel Url - Amazon Pay側の画面上でCancelした場合にリダイレクトされるURL。通常は指定する必要はないが、本サンプルアプリ(iOS)では「https://localhost:3443/static/cancelSecureWebview.html?client=iosApp 」。
+- Checkout Cancel Url - Amazon Pay側の画面上でCancelした場合にリダイレクトされるURL。詳細は後述の「Amazon側ページ上でのCancel処理」参照。通常は指定する必要はないが、本サンプルアプリ(iOS)では「https://localhost:3443/static/cancelSecureWebview.html?client=iosApp 」。
 - Sandbox - 本サンプルアプリはSandbox環境で動作させるため、「true」。本番向けには「false」を選択すること。
 
 入力したら、「Generate Button Code Sample」ボタンをクリックします。  
@@ -327,7 +329,7 @@ amazon.Pay.initCheckout({  // ← メソッド名を「initCheckout」に変更 
 
 <script src="https://static-fe.payments-amazon.com/checkout.js"></script>
 <script type="text/javascript" charset="utf-8">
-amazon.Pay.initCheckout({  // ← メソッド名を「initCheckout」に変更 & Amazon Payボタンのnode指定のパラメタの除去
+amazon.Pay.initCheckout({
     // set checkout environment
     merchantId: 'A23YM23UEBY8FM',
     ledgerCurrency: 'JPY',
@@ -449,6 +451,8 @@ ViewControllerでは、viewDidLoadの中の下記の処理が起動します。
 WebViewではこの時点でカートページが表示されており、上記にて下記のJavaScriptが起動して購入ページの読み込みが開始します。  
 
 ```js
+// nodejs/views/sample/cart.ejsより抜粋 (見やすくするため、一部加工しています。)
+
     function loadUrl(url) {
         location.href = url;
     }
@@ -716,13 +720,13 @@ GMOPGからPOSTで送信されたパラメタを「key1=value1&key2=value2...」
 <% if (client === 'iosApp') { %>
         const appUri = 'amazonpay-ios-v2://thanks?params=<%= params %>';
 <% } else { %>
-        const appUri = `intent://amazon_pay_android_v2#Intent;package=com.example.myapp2;scheme=amazon_pay_android_v2;S.mode=thanks;S.params=<%= params %>;end;`;
+            :
 <% } %>
         // 自動的にアプリに戻る
         location.href = appUri;
             :
 ```
-※ <% 〜 %>で囲まれた部分はサーバー側でテンプレートとして実行される部分で、この場合はパラメタ「client」の値として「iosApp」が渡されているため、if文分岐でtrueの場合の側が描画されます。  
+※ <% 〜 %>で囲まれた部分はサーバー側でテンプレートとして実行される部分で、この場合はパラメタ「client」の値として「iosApp」が渡されているため、「else」より前の括弧内が描画されます。  
 
 このスクリプトのより、GMOPGからPOSTで送信されたパラメタを付与されたCustomURLSchemeが自動で発動し、アプリが呼び出されます。
 ※ CustomURLSchemeについての詳細については、[こちら](./README_swv2app.md)をご参照下さい。  
@@ -919,6 +923,9 @@ Secure WebViewを起動するため、まずはハンドラからNativeコード
                         :
 <script type="text/javascript" charset="utf-8">
                         :
+    //-------------------------
+    // 住所・支払方法変更ボタン
+    //-------------------------
     if(window.androidApp) {
                 :
     } else if (window.webkit && webkit.messageHandlers && webkit.messageHandlers.iosApp) {
@@ -1004,7 +1011,7 @@ bindChangeActionが「changeButton」ノードに対して実行された後、�
 
 住所・支払方法選択後にSecure WebViewからアプリに戻ってThanks画面が表示される処理に関しては通常のフローと同じになります。  
 
-## Cancel
+## Amazon側ページ上でのCancel処理
 
 <img src="docimg/2025-11-11-14-39-30.png" width="400">  
 
@@ -1115,7 +1122,7 @@ WebViewからSecure WebView起動処理をJavaScriptで呼び出すとき、下�
 <script type="text/javascript" charset="utf-8">
                 :
         node.addEventListener('click', (e) => {
-            coverScreen();
+            coverScreen(); // ← ※※※ こちらの処理 ※※※
             if(client === 'androidApp') {
                 androidApp.startSecureWebview();
             } else {
@@ -1157,5 +1164,5 @@ Secure WebView起動直前に「coverScreen」を呼び出しておくことで�
             }
 ```
 
-本サンプルでは「coverScreen」は単にスピナーを表示していますが、こちらは各モバイルアプリのデザインや方針などに応じて、より自然に見えるものを表示しても良いでしょう。  
+本サンプルでは「coverScreen」はスピナーを表示していますが、こちらは各モバイルアプリのデザインや方針などに応じて、より自然に見えるものを表示しても良いでしょう。  
 

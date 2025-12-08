@@ -3,7 +3,7 @@
 - Applinks  
   - メリット : 確実に指定したモバイルアプリを起動できるため、Secureである
   - デメリット : ユーザがLinkをタップしたときにしか発動しない
-- Intent
+- Intent(ここでは特に[暗黙的インテント](https://developer.android.com/guide/components/intents-filters?hl=ja#Types)のこと)
   - メリット : JavaScriptからでも発動できる
   - デメリット : 仕組み上、悪意のあるアプリが代わりに起動してしまうリスクを完全には排除できない
 
@@ -98,7 +98,7 @@ Emulator上での検証がOKなら、下記のように検証OKのメッセー�
 なお、Applinksが発動する条件は、基本的には「https://{'apple-app-site-association'を配置したサーバーのドメイン}」/...」というURLのLinkをChrome Custom Tabs上でタップしたときで、JavaScriptなどでこのURLをloadしても起動しません。  
 実験してみたところ、iOSのUniversal Linksとは違ってRedirectした場合 ( = HTTP 302 が返却されるときのLocationヘッダに「https://{'apple-app-site-association'を配置したサーバーのドメイン}」/...」を指定した場合) には発動するようでした。  
 
-## Intent
+## Intent([暗黙的インテント](https://developer.android.com/guide/components/intents-filters?hl=ja#Types))
 IntentはAndroidにおけるアプリ連携の基本的な仕組みで、AndroidManifext.xmlにintent-filterを定義することで呼び出せるようになります。
 
 本サンプルアプリのAndroidManifext.xmlの該当箇所を抜粋します。  

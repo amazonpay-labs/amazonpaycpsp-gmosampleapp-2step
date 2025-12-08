@@ -256,7 +256,7 @@ initCheckoutの呼び出し処理のスクリプトはパラメタの正当性�
 - Private Key - SellerCentralより取得したPrivate Key(参考: https://www.amazonpay-faq.jp/faq/QA-59 )。ブラウザにUploadして使用するが、Code GeneratorではPrivate Keyはブラウザ内でしか利用せず、一切他のサーバー等には送信しないため、漏洩の心配はない。
 - Product Type - 実装したいAmazon Payの機能に応じて選択。本サンプルでは「PayAndShip」を選択する。
 - Scopes - Amazon Payから取得する必要のあるユーザの情報に応じて指定。本サンプルではデフォルトのままで良い。
-- Checkout Cancel Url - Amazon Pay側の画面上でCancelした場合にリダイレクトされるURL。詳細は後述の「Amazon側ページ上でのCancel処理」参照。通常は指定する必要はないが、本サンプルアプリ(iOS)では「https://localhost:3443/static/cancelSecureWebview.html?client=iosApp 」。
+- Checkout Cancel Url - Amazon Pay側の画面上でCancelした場合にリダイレクトされるURL。詳細は後述の「Amazon側ページ上でのCancel処理」参照。本サンプルアプリ(iOS)では「https://localhost:3443/static/cancelSecureWebview.html?client=iosApp 」。
 - Sandbox - 本サンプルアプリはSandbox環境で動作させるため、「true」。本番向けには「false」を選択すること。
 
 入力したら、「Generate Button Code Sample」ボタンをクリックします。  

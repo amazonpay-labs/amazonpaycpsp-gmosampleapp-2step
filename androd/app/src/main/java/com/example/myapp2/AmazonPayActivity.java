@@ -68,7 +68,7 @@ public class AmazonPayActivity extends AppCompatActivity {
                 String params = intent.getStringExtra("params");
                 Log.d("[Intent]", params);
                 MainActivity.webviewParams = params;
-            } else { // Thanksページ表示
+            } else { // Cartページ表示
                 // Amazon PayのAuthorizeページ(スピナーページ)上で処理失敗後にCancelされた場合でもCartページに戻れるよう、戻り先URLを指定する.
                 MainActivity.webviewUrl = "/cart";
             }

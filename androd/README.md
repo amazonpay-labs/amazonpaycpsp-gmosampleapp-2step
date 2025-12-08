@@ -1140,7 +1140,7 @@ WebViewの画面の遷移が終わるまでの間、Secure WebView起動前の�
 Secure WebView起動直前に「coverScreen」を呼び出しておくことで、下記のようにこれを防ぐことができます。  
 <img src="docimg/cover-version.gif" width="300">  
 
-なおこのままだと、ユーザがSecure WebViewの左上の「Done」をタップしてWebViewに戻ってきた場合には、ページにスピナーが表示されたままで操作不能になってしまいます。  
+なおこのままだと、ユーザがSecure WebViewの左上の「X」をタップしてWebViewに戻ってきた場合には、ページにスピナーが表示されたままで操作不能になってしまいます。  
 そこでその場合には、MainActivity#onResumeの下記コードにて「uncoverScreen」を呼んで、スピナーを非表示にして元に戻しています
 。  
 
@@ -1158,3 +1158,47 @@ Secure WebView起動直前に「coverScreen」を呼び出しておくことで�
 
 本サンプルでは「coverScreen」はスピナーを表示していますが、こちらは各モバイルアプリのデザインや方針などに応じて、より自然に見えるものを表示しても良いでしょう。  
 
+### Secure WebViewが左上の「X」ボタンによりCloseされた場合の対処
+Secure WebView(Chrome Custom Tabs)には左上にCloseするための「X」ボタンが用意されており、こちらをBuyerがタップする可能性があります。  
+この時、何の対処もしていないと、AmazonPayActivityが残ったままになってしまいます。  
+AmazonPayActivityには画面に何かを表示したり、操作するような処理は実装されておらず、下記の動画のように真っ白な画面が表示されてBuyerがアプリを操作できなくなってしまいます。  
+
+<img src="docimg/close_white.gif" width="300">  
+
+これを防ぐために、AmazonPayActivity.javaでは「isKicked」というフラグを使い、Secure WebView上で「X」ボタンがタップされたとき( ＝ onCreate/onNewIntentを経由しないでonResumeが実行されたとき )にfinishするよう対処しています。  
+
+```java
+public class AmazonPayActivity extends AppCompatActivity {
+
+    private boolean isKicked = false;
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_amazon_pay);
+        this.isKicked = true;
+            :
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        this.isKicked = true;
+            :
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Secure WebViewを左上の「X」ボタンで閉じられた場合、元の画面に戻すために本Activityを自動でfinishさせる
+        if(!isKicked) {
+            this.finish();
+        }
+        isKicked = false;
+    }
+            :
+```
+
+これにより、下記のようにMainActivityに無事に戻れるようになります。  
+
+<img src="docimg/close_main.gif" width="300">  

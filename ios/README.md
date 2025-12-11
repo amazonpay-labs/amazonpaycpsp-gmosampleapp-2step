@@ -252,7 +252,7 @@ initCheckoutの呼び出し処理のスクリプトはパラメタの正当性�
 - Type - 実装したいAmazon Payの機能に応じて選択。本サンプルでは「Onetime」を選択する。
 - Store ID - SellerCentralより取得したStore ID(参考: https://www.amazonpay-faq.jp/faq/QA-7 )
 - Public Key Id - SellerCentralより取得したPublic Key Id(参考: https://www.amazonpay-faq.jp/faq/QA-59 )
-- Checkout Review ReturnUrl - Amazon Payで住所・支払方法選択後にリダイレクトされるURLで、通常Review画面へのURL. 本サンプルアプリ(iOS)では「https://localhost:3443/static/pauseSecureWebview.html 」。
+- Checkout Review ReturnUrl - Amazon Payで住所・支払方法選択後にリダイレクトされるURLで、ブラウザ版では購入ページへのURL. 本サンプルアプリ(iOS)では「https://localhost:3443/static/pauseSecureWebview.html 」。
 - Private Key - SellerCentralより取得したPrivate Key(参考: https://www.amazonpay-faq.jp/faq/QA-59 )。ブラウザにUploadして使用するが、Code GeneratorではPrivate Keyはブラウザ内でしか利用せず、一切他のサーバー等には送信しないため、漏洩の心配はない。
 - Product Type - 実装したいAmazon Payの機能に応じて選択。本サンプルでは「PayAndShip」を選択する。
 - Scopes - Amazon Payから取得する必要のあるユーザの情報に応じて指定。本サンプルではデフォルトのままで良い。
@@ -353,7 +353,7 @@ amazon.Pay.initCheckout({
 
 <img src="docimg/2025-11-06-13-30-48.png" width="500">  
 
-### checkoutReviewReturnUrlへのリダイレクト
+### 「Secure WebViewを中断してアプリに戻すページ」へのリダイレクト
 Amazon Payのページにて住所・支払方法を選択し、「続行」ボタンを押下すると、initCheckoutでCheckout Review ReturnUrlに指定した「https://localhost:3443/static/pauseSecureWebview.html 」に対してURLパラメタ`amazonCheckoutSessionId`が付与されたURLへのリダイレクトが実行されます。  
 これにより、`nodejs/static/pauseSecureWebview.html`が描画されます。  
 
@@ -571,7 +571,7 @@ app.post('/checkoutSession', async (req, res) => {
 ```
 
 GMOPG APIを使って、決済に必要な購入金額や事業者側の受注番号等の情報と、支払い処理ページ(後述)で自動的にリダイレクトされるURL等を登録してトランザクションの実行を処理します。  
-この、「支払い処理ページで自動的にリダイレクトされるURL」ですが、Browserの場合は直接ThanksページのURLを、iOS及びAndroidの場合は中継用ページ(後述)へのURL(https://localhost:3443/endSecureWebview?client=iosApp)を、それぞれ指定します。  
+この、「支払い処理ページで自動的にリダイレクトされるURL」ですが、Browserの場合は直接ThanksページのURLを、iOS及びAndroidの場合は「Secure WebViewを終了してアプリに戻すページ」(後述)へのURL(https://localhost:3443/endSecureWebview?client=iosApp)を、それぞれ指定します。  
 GMOPG APIからの戻り値は、"key1=value1&key2=value2..."の形式に変換してResponseとして返却します。  
 
 ### 再度Secure WebViewを起動
@@ -689,11 +689,11 @@ GMOPG APIのEntryTranAmazonpayの戻り値として渡された、StartURLに対
 ※ 上記で省略した部分を確認すると分かりますが、実際にはOpen Redirector対策としてsecureTokenとdomainのチェックも合わせて実施しています。  
 これにより、GMOPGのページを経由して、Amazon Payの支払い処理ページ(スピナーページとも呼ばれます)が表示されます。  
 この画面が表示されている間、Amazon側ではServer側で与信を含む支払いの処理が行われており、エラーハンドリングも含めてこちらの画面で処理されています。  
-支払いの処理が終わると、「Ajaxでのサーバー側トランザクション実行処理呼び出し」で指定した中継用ページへのURLに自動的にPOSTリクエストが送信されます。  
+支払いの処理が終わると、「Ajaxでのサーバー側トランザクション実行処理呼び出し」で指定したSecure WebViewを終了してアプリに戻すページへのURLに自動的にPOSTリクエストが送信されます。  
 
-### 中継用ページ
+### Secure WebViewを終了してアプリに戻すページ
 
-中継用ページのURLは「https://localhost:3443/endSecureWebview?client=iosApp 」で、これによりnodejsの下記の処理が起動します。  
+Secure WebViewを終了してアプリに戻すページのURLは「https://localhost:3443/endSecureWebview?client=iosApp 」で、これによりnodejsの下記の処理が起動します。  
 
 ```js
 // nodejs/app.jsより抜粋 (見やすくするため、一部加工しています。)
@@ -728,7 +728,7 @@ GMOPGからPOSTで送信されたパラメタを「key1=value1&key2=value2...」
 ```
 ※ <% 〜 %>で囲まれた部分はサーバー側でテンプレートとして実行される部分で、この場合はパラメタ「client」の値として「iosApp」が渡されているため、「else」より前の括弧内が描画されます。  
 
-このスクリプトのより、GMOPGからPOSTで送信されたパラメタを付与されたCustomURLSchemeが自動で発動し、アプリが呼び出されます。
+このスクリプトにより、GMOPGからPOSTで送信されたパラメタを付与されたCustomURLSchemeが自動で発動し、アプリが呼び出されます。
 ※ CustomURLSchemeについての詳細については、[こちら](./README_swv2app.md)をご参照下さい。  
 
 なお上記で省略されたスクリプトを確認すると分かりますが、実際にはアプリがBackground状態だと稀にCustomURLSchemeが発動しない場合があることを考慮し、自動で発動しなかった場合にCustomURLSchemeを発動させるボタンを補助的に表示するようにしています。  

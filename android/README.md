@@ -380,7 +380,7 @@ amazon.Pay.initCheckout({
 
 <img src="docimg/2025-11-06-13-30-48.png" width="500">  
 
-### checkoutReviewReturnUrlへのリダイレクト
+### 「Secure WebViewを中断してアプリに戻すページ」へのリダイレクト
 Amazon Payのページにて住所・支払方法を選択し、「続行」ボタンを押下すると、initCheckoutでCheckout Review ReturnUrlに指定した「https://10.0.2.2:3443/static/pauseSecureWebview.html 」に対してURLパラメタ`amazonCheckoutSessionId`が付与されたURLへのリダイレクトが実行されます。  
 これにより、`nodejs/static/pauseSecureWebview.html`が描画されます。  
 
@@ -605,7 +605,7 @@ app.post('/checkoutSession', async (req, res) => {
 ```
 
 GMOPG APIを使って、決済に必要な購入金額や事業者側の受注番号等の情報と、支払い処理ページ(後述)で自動的にリダイレクトされるURL等を登録してトランザクションの実行を処理します。  
-この、「支払い処理ページで自動的にリダイレクトされるURL」ですが、Browserの場合は直接ThanksページのURLを、iOS及びAndroidの場合は中継用ページ(後述)へのURL(https://10.0.2.2:3443/endSecureWebview?client=androidApp)を、それぞれ指定します。  
+この、「支払い処理ページで自動的にリダイレクトされるURL」ですが、Browserの場合は直接ThanksページのURLを、iOS及びAndroidの場合はSecure WebViewを終了してアプリに戻すページ(後述)へのURL(https://10.0.2.2:3443/endSecureWebview?client=androidApp)を、それぞれ指定します。  
 GMOPG APIからの戻り値は、"key1=value1&key2=value2..."の形式に変換してResponseとして返却します。  
 
 ### 再度Secure WebViewを起動
@@ -698,11 +698,11 @@ GMOPG APIのEntryTranAmazonpayの戻り値として渡された、StartURLに対
 ※ 上記で省略した部分を確認すると分かりますが、実際にはOpen Redirector対策としてsecureTokenとdomainのチェックも合わせて実施しています。  
 これにより、GMOPGのページを経由して、Amazon Payの支払い処理ページ(スピナーページとも呼ばれます)が表示されます。  
 この画面が表示されている間、Amazon側ではServer側で与信を含む支払いの処理が行われており、エラーハンドリングも含めてこちらの画面で処理されています。  
-支払いの処理が終わると、「Ajaxでのサーバー側トランザクション実行処理呼び出し」で指定した中継用ページへのURLに自動的にPOSTリクエストが送信されます。  
+支払いの処理が終わると、「Ajaxでのサーバー側トランザクション実行処理呼び出し」で指定したSecure WebViewを終了してアプリに戻すページへのURLに自動的にPOSTリクエストが送信されます。  
 
-### 中継用ページ
+### Secure WebViewを終了してアプリに戻すページ
 
-中継用ページのURLは「https://10.0.2.2:3443/endSecureWebview?client=androidApp 」で、これによりnodejsの下記の処理が起動します。  
+Secure WebViewを終了してアプリに戻すページのURLは「https://10.0.2.2:3443/endSecureWebview?client=androidApp 」で、これによりnodejsの下記の処理が起動します。  
 
 ```js
 // nodejs/app.jsより抜粋 (見やすくするため、一部加工しています。)

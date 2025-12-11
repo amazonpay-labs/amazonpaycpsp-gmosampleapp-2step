@@ -58,7 +58,7 @@ Amazon PayをPC・MobileのBrowserに実装した場合、一般的には下記�
 3. ③の購入ボタンクリック時に下記の処理を行います。
     - Server側で「amazonCheckoutSessionId」をパラメタにGMOPG APIを呼び出し、金額などの決済に必要な情報と、④のリダイレクト先のThanksページのURLを設定します。
     - このAPIの戻り値の中に③の「支払い処理ページ」へのURLが含まれているので、そちらにリダイレクトします。
-4. Amazon側の画面にて与信などの決済処理が完了すると自動的に④のリダイレクトが発生します。
+4. 支払い処理ページにて与信などの決済処理が完了すると自動的に④のリダイレクトが発生します。
     - Server側でGMOPG APIを呼び出してAmazon Payの支払いSessionを完了させて、Thanksページを表示します。
 
 ## モバイルアプリ版への実装で必要なタスク
@@ -73,17 +73,17 @@ Browserと違う部分に関しては、***太字***で表記します。
 下記のとおり、多くの部分がBrowserと共通になります。
 
 1. カートページや商品ページに ***「Amazon Payボタン」の画像*** を配置します。
-    - ***この画像をタップした時、「自動的にAmazonログイン画面に遷移させるページ」([android](android/README.md)、[ios](ios/README.md)にて後述)をSecure WebViewで表示します。***
-    - この時、②-1でリダイレクトされる、***アプリに戻るページへのURL*** を設定します。
+    - ***この画像をタップした時、「Amazonログイン画面への自動遷移ページ」([android](android/README.md)、[ios](ios/README.md)にて後述)をSecure WebViewで表示します。***
+    - この時、②-1でリダイレクトされる、***Secure WebViewを中断してアプリに戻すページへのURL*** を設定します。
 2. ②-1のリダイレクト時のURLに「amazonCheckoutSessionId」が渡されます。
     - ***②-2の「次へ」ボタンをクリックにて、iOS: Universal Links, Android: Applinks が発動してアプリのNativeコードが呼び出されます。***
     - ***NativeコードではURLに含まれる「amazonCheckoutSessionId」を取得し、これを付与してWebViewを購入ページにリダイレクトさせます***
     - Server側で「amazonCheckoutSessionId」をパラメタにGMOPG APIを呼び出し、購入者の氏名・住所情報を取得して購入ページに反映して表示します。
 3. ③の購入ボタンクリック時に下記の処理を行います。
-    - Server側で「amazonCheckoutSessionId」をパラメタにGMOPG APIを呼び出し、金額などの決済に必要な情報と、④のリダイレクト先の ***Nativeコードを起動する「中継用のページ」([android](android/README.md)、[ios](ios/README.md)にて後述)*** のURLを設定します。
+    - Server側で「amazonCheckoutSessionId」をパラメタにGMOPG APIを呼び出し、金額などの決済に必要な情報と、④のリダイレクト先の ***Secure WebViewを終了してアプリに戻すページ([android](android/README.md)、[ios](ios/README.md)にて後述)*** のURLを設定します。
     - このAPIの戻り値の中に③の「支払い処理ページ」へのURLが含まれているので、***Secure WebViewで表示します***。
-4. Amazon側の画面にて与信などの決済処理が完了すると自動的に④のリダイレクトが発生します。
-    - ***中継用ページによりNativeコードが起動するので、WebViewをThanksページにリダイレクトさせます***。
+4. 支払い処理ページにて与信などの決済処理が完了すると自動的に④のリダイレクトが発生します。
+    - ***「Secure WebViewを終了してアプリに戻すページ」によりNativeコードが起動するので、WebViewをThanksページにリダイレクトさせます***。
     - Server側でGMOPG APIを呼び出してAmazon Payの支払いSessionを完了させて、Thanksページを表示します。
 
 ### Nativeアプリの場合
@@ -91,17 +91,17 @@ Browserと違う部分に関しては、***太字***で表記します。
 Nativeアプリの場合には画面の表示などはBrowserとは別に実装する必要はありますが、Secure WebView上の処理やServer側の処理などは共通です。  
 
 1. カートページや商品ページに ***「Amazon Payボタン」の画像*** を配置します。
-    - ***この画像をタップした時、「自動的にAmazonログイン画面に遷移させるページ」([android](android/README.md)、[ios](ios/README.md)にて後述) をSecure WebViewで表示します。***
-    - この時、②-1でリダイレクトされる、***アプリに戻るページへのURL*** を設定します。
+    - ***この画像をタップした時、「Amazonログイン画面への自動遷移ページ」([android](android/README.md)、[ios](ios/README.md)にて後述) をSecure WebViewで表示します。***
+    - この時、②-1でリダイレクトされる、***Secure WebViewを中断してアプリに戻すページへのURL*** を設定します。
 2. ②-1のリダイレクト時のURLに「amazonCheckoutSessionId」が渡されます。
     - ***②-2の「次へ」ボタンをクリックにて、iOS: Universal Links, Android: Applinks が発動してアプリのNativeコードが呼び出されます。***
     - ***Nativeコードが起動するので、URLに含まれる「amazonCheckoutSessionId」を取得します***
     - Server側で「amazonCheckoutSessionId」をパラメタにGMOPG APIを呼び出し、購入者の氏名・住所情報を取得して購入ページに反映して表示します。
 3. ③の購入ボタンクリック時に下記の処理を行います。
-    - Server側でGMOPG APIを呼び出し、金額などの決済に必要な情報と、④のリダイレクト先の ***Nativeコードを起動する「中継用のページ」([android](android/README.md)、[ios](ios/README.md)にて後述)*** のURLを設定します。
+    - Server側でGMOPG APIを呼び出し、金額などの決済に必要な情報と、④のリダイレクト先の ***Secure WebViewを終了してアプリに戻すページ([android](android/README.md)、[ios](ios/README.md)にて後述)*** のURLを設定します。
     - このAPIの戻り値の中に③の「支払い処理ページ」へのURLが含まれているので、***Secure WebViewで表示します***。
-4. Amazon側の画面にて与信などの決済処理が完了すると自動的に④のリダイレクトが発生します。
-    - ***中継用ページによりNativeコードが起動します***。
+4. 支払い処理ページにて与信などの決済処理が完了すると自動的に④のリダイレクトが発生します。
+    - ***「Secure WebViewを終了中断してアプリに戻すページ」によりNativeコードが起動します***。
     - Server側でGMOPG APIを呼び出してAmazon Payの支払いSessionを完了させて、Thanksページを表示します。
 
 # 本サンプルアプリの詳細と動かし方の確認
